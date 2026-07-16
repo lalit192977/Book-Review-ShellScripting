@@ -71,7 +71,7 @@ function installNodeMOdules {
 
 }
 
-#******************************CALLING********************************
+#******************************CALLING FOR BACKEND********************************
 # installing package
 installPackage "nodejs"
 installPackage "npm"
@@ -110,5 +110,25 @@ ALLOWED_ORIGINS=*
 EOF
 
 # start the backend
-# nohup node src/server.js &
-node src/server.js 
+nohup node src/server.js &
+# node src/server.js 
+
+
+
+#******************************CALLING FOR FRONTEND********************************
+cd ../frontend #move to the forntend directory
+
+# install the frontend dependencies 
+installNodeMOdules
+
+echo "Creating .env.local file..."
+
+cat > .env.local <<EOF
+NEXT_PUBLIC_API_URL=http://localhost:5000
+EOF
+
+echo ".env.local created successfully."
+
+echo "Starting frontend server..."
+
+npm run dev
