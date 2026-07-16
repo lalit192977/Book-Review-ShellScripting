@@ -2,12 +2,12 @@
 
 echo "============================START=============================="
 #*****************************VARIABLES******************************
-read -p "enter the package name: " package
+# read -p "enter the package name: " package
 
 #*****************************FUNCTIONS******************************
 # check the service is-active or not
 function isActive {
-    sudo systemctl is-active -q $1
+    systemctl is-active -q $1
 }
 
 # function for installing the package
@@ -17,7 +17,7 @@ function installPackage {
         echo "$1 : package is installed"
     else
         echo "package $1 is installing...."
-        sudo apt install -y "$1"
+        apt install -y "$1"
         if dpkg -l | grep -w "$1" >/dev/null 
         then
             echo "package $1 installed"
@@ -33,7 +33,9 @@ function serviceStart {
     then
         echo "the service : $1 is already started"
     else
-        echo "starting the service: $1"
+        echo "Starting $1 service..."
+        systemctl start "$1"
+
         if isActive "$1"
         then
             echo "service: $1 started successfully"
@@ -43,6 +45,66 @@ function serviceStart {
     fi
 }
 
+# clone the repo
+function cloneRepository {
+    if [ -d "./book-review-app" ]
+    then
+        echo "repository already exists"
+    else
+        git clone https://github.com/lalit192977/book-review-app.git
+    fi
+}
 
+# install the dependency
+function installNodeMOdules {
+    echo "installing npm packages..." 
+
+    npm install
+
+    if [ $? -eq 0 ]
+    then
+        echo "Dependencies installed"
+    else
+        echo "npm install failed"
+        exit
+    fi
+
+}
 
 #******************************CALLING********************************
+# installing package
+installPackage "nodejs"
+installPackage "npm"
+installPackage "mysql-server"
+installPackage "mysql-client"
+
+# cloning the repo
+cloneRepository
+
+# changing the directory
+cd ./book-review-app/backend || exit 
+# install node module package
+installNodeMOdules
+
+# create database automatically
+mysql -u root <<EOF
+CREATE DATABASE IF NOT EXISTS book_review_db;
+EOF
+
+# create .env file and generate it with the environments
+touch .env # creating a file
+
+cat > .env <<EOF
+DB_HOST=localhost
+DB_USER=root
+DB_PASS=
+DB_NAME=book_review_db
+DB_DIALECT=mysql
+
+JWT_SECRET=mysecret
+
+ALLOWED_ORIGINS=*
+EOF
+
+# start the backend
+nohup node src/server.js &
