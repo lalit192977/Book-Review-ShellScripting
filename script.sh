@@ -99,8 +99,8 @@ touch .env # creating a file
 
 cat > .env <<EOF
 DB_HOST=localhost
-DB_USER=root
-DB_PASS=
+DB_USER=bookuser
+DB_PASS=bookpass123
 DB_NAME=book_review_db
 DB_DIALECT=mysql
 
