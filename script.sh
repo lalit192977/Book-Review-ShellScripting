@@ -89,6 +89,9 @@ installNodeMOdules
 # create database automatically
 mysql -u root <<EOF
 CREATE DATABASE IF NOT EXISTS book_review_db;
+CREATE USER IF NOT EXISTS 'bookuser'@'localhost' IDENTIFIED BY 'bookpass123';
+GRANT ALL PRIVILEGES ON book_review_db.* TO 'bookuser'@'localhost';
+FLUSH PRIVILEGES;
 EOF
 
 # create .env file and generate it with the environments
@@ -107,4 +110,5 @@ ALLOWED_ORIGINS=*
 EOF
 
 # start the backend
-nohup node src/server.js &
+# nohup node src/server.js &
+node src/server.js 
